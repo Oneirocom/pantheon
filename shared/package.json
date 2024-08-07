@@ -1,0 +1,14 @@
+{
+  "name": "@magickml/pantheon-shared",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "unbuild"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@colyseus/schema": "^2.0.34"
+  },
+  "devDependencies": {
+    "unbuild": "^2.0.0"
+  }
+}
