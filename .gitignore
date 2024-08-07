@@ -1,0 +1,6 @@
+dist
+node_modules
+.out
+.nitro
+.env.production
+.env
