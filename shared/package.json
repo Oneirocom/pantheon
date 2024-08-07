@@ -1,6 +1,12 @@
 {
   "name": "@magickml/pantheon-shared",
   "version": "0.0.1",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "unbuild"
   },
