@@ -1,38 +1,14 @@
 import { Room, Client } from "@colyseus/core";
-import { SimulationState, Agent, AgentAction } from "@magickml/pantheon-shared";
+import { BaseAgent, BaseSimulationState } from "@magickml/pantheon-shared";
 
-export class AgentRoom extends Room<SimulationState> {
-  maxClients = 4;
+class GenericSimulationRoom<T extends BaseSimulationState> extends Room<T> {
+  maxClients = 100;
 
   onCreate(options: any) {
-    this.setState(new SimulationState());
+    this.setState(new BaseSimulationState() as T);
 
-    this.onMessage(
-      "updateWorldState",
-      (client, message: { key: string; value: any }) => {
-        this.state.worldState.properties.set(message.key, message.value);
-      }
-    );
-
-    this.onMessage(
-      "agentAction",
-      (client, message: { agentId: string; action: AgentAction }) => {
-        const { agentId, action } = message;
-        const agent = this.state.agents.get(agentId);
-        if (agent) {
-          switch (action.type) {
-            case "move":
-              agent.x += action.dx;
-              agent.y += action.dy;
-              break;
-            case "interact":
-              // Implement interaction logic
-              break;
-            // Add more action types as needed
-          }
-        }
-      }
-    );
+    this.onMessage("agentAction", this.handleAgentAction.bind(this));
+    this.onMessage("customAction", this.handleCustomAction.bind(this));
 
     this.setSimulationInterval(
       (deltaTime) => this.update(deltaTime),
@@ -43,11 +19,7 @@ export class AgentRoom extends Room<SimulationState> {
   onJoin(client: Client, options: any) {
     console.log(client.sessionId, "joined!");
     const agentId = client.sessionId;
-    const newAgent = new Agent(
-      agentId,
-      Math.random() * 100,
-      Math.random() * 100
-    );
+    const newAgent = new BaseAgent(agentId);
     this.state.agents.set(agentId, newAgent);
   }
 
@@ -62,8 +34,37 @@ export class AgentRoom extends Room<SimulationState> {
 
   update(deltaTime: number): void {
     this.state.agents.forEach((agent) => {
-      // Implement agent behavior here
+      this.updateAgent(agent, deltaTime);
     });
     this.state.worldState.time += deltaTime;
+    this.updateWorld(deltaTime);
   }
+
+  handleAgentAction(
+    client: Client,
+    message: { agentId: string; action: string; data?: any }
+  ) {
+    const { agentId, action, data } = message;
+    const agent = this.state.agents.get(agentId);
+    if (agent) {
+      this.processAgentAction(agent, action, data);
+    }
+  }
+
+  handleCustomAction(client: Client, message: { type: string; data: any }) {
+    const { type, data } = message;
+    this.processCustomAction(type, data);
+  }
+
+  // Methods to be overridden by specific room implementations
+  protected updateAgent(agent: BaseAgent, deltaTime: number): void {}
+  protected updateWorld(deltaTime: number): void {}
+  protected processAgentAction(
+    agent: BaseAgent,
+    action: string,
+    data?: any
+  ): void {}
+  protected processCustomAction(type: string, data: any): void {}
 }
+
+export { GenericSimulationRoom };

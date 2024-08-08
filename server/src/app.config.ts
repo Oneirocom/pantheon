@@ -5,14 +5,14 @@ import { playground } from "@colyseus/playground";
 /**
  * Import your Room files
  */
-import { AgentRoom } from "./rooms/agent-world";
+import { GenericSimulationRoom } from "./rooms/agent-world";
 
 export default config({
   initializeGameServer: (gameServer) => {
     /**
      * Define your room handlers:
      */
-    gameServer.define("my_room", AgentRoom);
+    gameServer.define("agent_world", GenericSimulationRoom);
   },
 
   initializeExpress: (app) => {
