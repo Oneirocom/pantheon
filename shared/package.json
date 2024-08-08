@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "main": "./dist/index.mjs",
   "type": "module",
+  "license": "GPL-3.0-only",
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
@@ -13,7 +14,6 @@
   "scripts": {
     "build": "unbuild"
   },
-  "license": "MIT",
   "dependencies": {
     "@colyseus/schema": "^2.0.34"
   },

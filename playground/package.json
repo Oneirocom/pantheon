@@ -1,0 +1,19 @@
+{
+  "name": "playground",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nitro dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@colyseus/schema": "^2.0.34",
+    "@gtc-nova/kit": "^0.0.1",
+    "@magickml/pantheon-connector": "workspace:*",
+    "nitro": "npm:nitro-nightly@3x"
+  },
+  "devDependencies": {}
+}
