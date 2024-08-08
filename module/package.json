@@ -12,7 +12,8 @@
     }
   },
   "scripts": {
-    "build": "unbuild"
+    "build": "unbuild",
+    "automd": "automd"
   },
   "license": "GPL-3.0-only",
   "dependencies": {
@@ -25,6 +26,7 @@
     "nitro": "npm:nitro-nightly@3x"
   },
   "devDependencies": {
+    "automd": "^0.3.8",
     "unbuild": "^2.0.0"
   }
 }
