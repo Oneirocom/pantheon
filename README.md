@@ -6,6 +6,8 @@ Here is an example `World Simulator` for Grimoire apps.
 
 It exists as a colyseus server, and a Grimoire/Nova/Nitro module: `pantheon-connector` that provides core/runtime functionality for the agent.
 
+I like Colyseus but it's not a requirement. The main concept I wanted to demonstrate here is that we can have a module that lets agent's connect/interact with the simulation while also providing the extra features/abstractions that make the development feel like a framework and not just a library.
+
 ## Installation
 
 ```bash
@@ -24,7 +26,7 @@ pnpm --filter playground dev
 
 ## End User Features
 
-### defineWorld
+### defineRoom
 
 ```typescript
 import { defineRoom } from "@magickml/pantheon-connector/runtime/utils";
