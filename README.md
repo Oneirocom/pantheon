@@ -18,7 +18,8 @@ pnpm -r build
 # Start the server
 pnpm --filter pantheon start
 
-# Start the 'playground' agent with the
+# Start the 'playground' agent with the @magickml/pantheon-connector module
+pnpm --filter playground dev
 ```
 
 ## End User Features
@@ -26,21 +27,16 @@ pnpm --filter pantheon start
 ### defineWorld
 
 ```typescript
-import { defineRoom } from "@magickml/pantheon-connector";
+import { defineRoom } from "@magickml/pantheon-connector/runtime/utils";
 
 export default defineRoom({
-  name: "example_room",
+  name: "agent_world",
+  autoJoin: true,
   onStateChange: (state) => {
-    console.log("Room state changed:", state);
+    console.log("State changed:", state);
   },
-  onMessage: (type, message) => {
-    console.log("Received message:", type, message);
-  },
-  onError: (code, message) => {
-    console.error("Room error:", code, message);
-  },
-  onLeave: (code) => {
-    console.log("Left room with code:", code);
+  onMessage: (message) => {
+    console.log("Message received:", message);
   },
 });
 ```
@@ -48,14 +44,13 @@ export default defineRoom({
 ### defineAction
 
 ```typescript
-import { defineAction } from "@magickml/pantheon-connector";
+import { defineAction } from "@magickml/pantheon-connector/runtime/utils";
 
-// Define an action
 export default defineAction({
   type: "move",
-  handler: async (data) => {
-    console.log("Processing move action:", data);
-    // Implement action logic here
+  handler: async (room, data) => {
+    console.log(`Moving in room ${room.name} with data:`, data);
+    room.send("move", data);
   },
 });
 ```

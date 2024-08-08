@@ -1,10 +1,9 @@
-import { defineAction } from "@magickml/pantheon-connector";
+import { defineAction } from "@magickml/pantheon-connector/runtime/utils";
 
-// Define an action
 export default defineAction({
   type: "move",
-  handler: async (data) => {
-    console.log("Processing move action:", data);
-    // Implement action logic here
+  handler: async (room, data) => {
+    console.log(`Moving in room ${room.name} with data:`, data);
+    room.send("move", data);
   },
 });

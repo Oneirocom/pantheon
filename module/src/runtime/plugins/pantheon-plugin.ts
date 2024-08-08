@@ -4,7 +4,7 @@ import type { PantheonFeatures } from "../../features";
 import { Client, Room } from "colyseus.js";
 import { getVirtualActions, getVirtualWorlds } from "../exports";
 import type { NitroApp } from "nitro/types";
-import type { ActionDefinition } from "../../types";
+import type { ActionDefinition, RoomDefinition } from "../../types";
 import consola from "consola";
 
 interface PantheonOptions {
@@ -22,8 +22,40 @@ export default defineNovaPlugin<PantheonFeatures, any>({
 
     nitro.pantheon = {
       client,
-      worlds: new Map<string, Room>(),
+      worlds: new Map<string, RoomDefinition>(),
       actions: new Map<string, ActionDefinition>(),
+      activeRooms: new Map<string, Room>(),
+      async connectToWorld(worldName: string, options?: any): Promise<Room> {
+        if (this.activeRooms.has(worldName)) {
+          return this.activeRooms.get(worldName)!;
+        }
+        const worldDef = this.worlds.get(worldName);
+        if (!worldDef) {
+          throw new Error(`World "${worldName}" not found`);
+        }
+        const room = await this.client.joinOrCreate(worldDef.name, options);
+        this.activeRooms.set(worldName, room);
+        return room;
+      },
+      async disconnectFromWorld(worldName: string): Promise<void> {
+        const room = this.activeRooms.get(worldName);
+        if (room) {
+          await room.leave();
+          this.activeRooms.delete(worldName);
+        }
+      },
+      async callAction(
+        actionName: string,
+        worldName: string,
+        data: any
+      ): Promise<void> {
+        const action = this.actions.get(actionName);
+        if (!action) {
+          throw new Error(`Action "${actionName}" not found`);
+        }
+        const room = await this.connectToWorld(worldName);
+        await action.handler(room, data);
+      },
     };
 
     return { client };
@@ -32,13 +64,15 @@ export default defineNovaPlugin<PantheonFeatures, any>({
     worlds: {
       getVirtualHandlers: getVirtualWorlds,
       initFeatureHandlers: async (nitro: NitroApp, handlers) => {
-        for (const room of handlers) {
+        for (const world of handlers) {
           try {
-            const roomDef: any = (await room.handler()).default;
-            nitro.pantheon.worlds.set(room.route || "default", roomDef);
-            consola.info(`Initialized room: ${room.route}`);
+            const worldDef: RoomDefinition = (await world.handler()).default;
+            nitro.pantheon.worlds.set(world.route || "default", worldDef);
           } catch (error) {
-            consola.error(`Failed to initialize room: ${room.route}`, error);
+            consola.error(
+              `Failed to initialize world handler: ${world.route}`,
+              error
+            );
           }
         }
       },
@@ -51,10 +85,9 @@ export default defineNovaPlugin<PantheonFeatures, any>({
             const actionDef: ActionDefinition = (await action.handler())
               .default;
             nitro.pantheon.actions.set(action.route || "default", actionDef);
-            consola.info(`Initialized action: ${action.route}`);
           } catch (error) {
             consola.error(
-              `Failed to initialize action: ${action.route}`,
+              `Failed to initialize action: ${action.route} handler`,
               error
             );
           }
@@ -65,10 +98,25 @@ export default defineNovaPlugin<PantheonFeatures, any>({
   before: (nitro: NitroApp) => {
     consola.info("Initializing Pantheon plugin...");
   },
-  after: (nitro: NitroApp) => {
+  after: async (nitro: NitroApp) => {
     consola.success("Pantheon plugin initialized.");
+    consola.info(
+      `Initialized worlds: ${[...nitro.pantheon.worlds.keys()].join(", ")}`
+    );
     consola.info(
       `Initialized actions: ${[...nitro.pantheon.actions.keys()].join(", ")}`
     );
+
+    // Auto-join worlds marked as autoJoin
+    for (const [worldName, worldDef] of nitro.pantheon.worlds) {
+      if (worldDef.autoJoin) {
+        try {
+          const w = await nitro.pantheon.connectToWorld(worldName);
+          consola.success(`Auto-joined world: ${worldDef.name}` + w.id);
+        } catch (error) {
+          consola.error(`Failed to auto-join world: ${worldDef.name}`, error);
+        }
+      }
+    }
   },
 });

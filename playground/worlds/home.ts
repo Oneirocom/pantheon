@@ -1,17 +1,12 @@
-import { defineRoom } from "@magickml/pantheon-connector";
+import { defineRoom } from "@magickml/pantheon-connector/runtime/utils";
 
 export default defineRoom({
-  name: "example_room",
+  name: "agent_world",
+  autoJoin: true,
   onStateChange: (state) => {
-    console.log("Room state changed:", state);
+    console.log("State changed:", state);
   },
-  onMessage: (type, message) => {
-    console.log("Received message:", type, message);
-  },
-  onError: (code, message) => {
-    console.error("Room error:", code, message);
-  },
-  onLeave: (code) => {
-    console.log("Left room with code:", code);
+  onMessage: (message) => {
+    console.log("Message received:", message);
   },
 });

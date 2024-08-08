@@ -12,12 +12,14 @@
     }
   },
   "scripts": {
-    "build": "unbuild"
+    "build": "unbuild",
+    "automd": "automd"
   },
   "dependencies": {
     "@colyseus/schema": "^2.0.34"
   },
   "devDependencies": {
+    "automd": "^0.3.8",
     "unbuild": "^2.0.0"
   }
 }
