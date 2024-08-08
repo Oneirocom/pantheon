@@ -1,6 +1,8 @@
 dist
 node_modules
 .out
+.output
 .nitro
 .env.production
 .env
+server/build
