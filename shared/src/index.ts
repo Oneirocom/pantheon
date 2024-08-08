@@ -1,31 +1,26 @@
 import { Schema, MapSchema, type } from "@colyseus/schema";
 
-interface AgentAction {
-  type: string;
-  [key: string]: any;
-}
-
-class Agent extends Schema {
+class BaseAgent extends Schema {
   @type("string") id: string;
-  @type("number") x: number;
-  @type("number") y: number;
+  @type("number") x: number = 0;
+  @type("number") y: number = 0;
+  @type("string") state: string = "idle";
+  @type({ map: "string" }) properties = new MapSchema<string>();
 
-  constructor(id: string, x: number, y: number) {
+  constructor(id: string) {
     super();
     this.id = id;
-    this.x = x;
-    this.y = y;
   }
 }
 
-class WorldState extends Schema {
+class BaseWorldState extends Schema {
   @type("number") time: number = 0;
   @type({ map: "string" }) properties = new MapSchema<string>();
 }
 
-export class SimulationState extends Schema {
-  @type({ map: Agent }) agents = new MapSchema<Agent>();
-  @type(WorldState) worldState = new WorldState();
+class BaseSimulationState extends Schema {
+  @type({ map: BaseAgent }) agents = new MapSchema<BaseAgent>();
+  @type(BaseWorldState) worldState = new BaseWorldState();
 }
 
-export { Agent, type AgentAction };
+export { BaseAgent, BaseWorldState, BaseSimulationState };
