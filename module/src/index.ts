@@ -13,7 +13,4 @@ export const pantheonModule = defineNovaModule<PantheonFeatures>({
   hooks: [],
 });
 
-export { defineRoom, defineAction } from "./runtime/utils/define";
-export type { RoomDefinition, ActionDefinition } from "./runtime/utils/define";
-
 export type * from "./types";

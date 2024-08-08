@@ -33,7 +33,7 @@ export default defineNovaPlugin<PantheonFeatures, any>({
         if (!worldDef) {
           throw new Error(`World "${worldName}" not found`);
         }
-        const room = await this.client.joinOrCreate(worldName, options);
+        const room = await this.client.joinOrCreate(worldDef.name, options);
         this.activeRooms.set(worldName, room);
         return room;
       },
@@ -68,9 +68,11 @@ export default defineNovaPlugin<PantheonFeatures, any>({
           try {
             const worldDef: RoomDefinition = (await world.handler()).default;
             nitro.pantheon.worlds.set(world.route || "default", worldDef);
-            consola.info(`Initialized world: ${world.route}`);
           } catch (error) {
-            consola.error(`Failed to initialize world: ${world.route}`, error);
+            consola.error(
+              `Failed to initialize world handler: ${world.route}`,
+              error
+            );
           }
         }
       },
@@ -83,10 +85,9 @@ export default defineNovaPlugin<PantheonFeatures, any>({
             const actionDef: ActionDefinition = (await action.handler())
               .default;
             nitro.pantheon.actions.set(action.route || "default", actionDef);
-            consola.info(`Initialized action: ${action.route}`);
           } catch (error) {
             consola.error(
-              `Failed to initialize action: ${action.route}`,
+              `Failed to initialize action: ${action.route} handler`,
               error
             );
           }
@@ -110,10 +111,10 @@ export default defineNovaPlugin<PantheonFeatures, any>({
     for (const [worldName, worldDef] of nitro.pantheon.worlds) {
       if (worldDef.autoJoin) {
         try {
-          await nitro.pantheon.connectToWorld(worldName);
-          consola.success(`Auto-joined world: ${worldName}`);
+          const w = await nitro.pantheon.connectToWorld(worldName);
+          consola.success(`Auto-joined world: ${worldDef.name}` + w.id);
         } catch (error) {
-          consola.error(`Failed to auto-join world: ${worldName}`, error);
+          consola.error(`Failed to auto-join world: ${worldDef.name}`, error);
         }
       }
     }
